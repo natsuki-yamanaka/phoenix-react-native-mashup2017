@@ -1,7 +1,7 @@
 import { Socket } from './Phoenix'
 
 const TIMEOUT = 10000
-const URL = 'http://153.126.133.143:4000/socket'
+const URL = 'http://localhost:4000/socket'
 const LOBBY = 'rooms:lobby'
 
 export default (user, onChat) => {

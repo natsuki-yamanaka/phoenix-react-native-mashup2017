@@ -4,10 +4,10 @@ import {
   StyleSheet,
   Text,
   View,
-  Dimensions
+  Dimensions,
+  Platform
 } from 'react-native';
-// import GiftedMessenger from 'react-native-gifted-messenger'
-import {GiftedChat} from 'react-native-gifted-chat'
+import GiftedChatAdvanced from './GiftedChatAdvanced'
 import Chat from './Chat'
 import uuid from 'uuid';
 
@@ -16,11 +16,7 @@ const SCREEN_HEIGHT = Dimensions.get('window').height
 const STATUS_BAR_HEIGHT = 40  // i know, but let's pretend its cool
 const CHAT_MAX_HEIGHT = SCREEN_HEIGHT - STATUS_BAR_HEIGHT
 const ID_FOR_MINE = uuid.v4()
-const NAMES = ['Girl', 'Boy', 'Horse', 'Poo', 'Face', 'Giant', 'Super', 'Butt', 'Captain', 'Lazer']
-const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min)) + min
-const getRandomName = () => NAMES[getRandomInt(0, NAMES.length)]
-const getRandomUser = () => `${ getRandomName() }${ getRandomName() }${ getRandomName() }`
-const userName = getRandomUser()
+const userName = uuid.v4()
 
 export default class Root extends Component {
   
@@ -42,7 +38,7 @@ export default class Root extends Component {
     if (this.isMe(message)) return // prevent echoing yourself (TODO: server could handle this i guess?)
 
     this.setState((previousState) => ({
-      messages: GiftedChat.append(this.state.messages, [this.createMessage(message.body, message.image, message.user, 'https://facebook.github.io/react/img/logo_og.png')])
+      messages: GiftedChatAdvanced.append(this.state.messages, [this.createMessage(message.body, message.user, message.image, 'https://facebook.github.io/react/img/logo_og.png')])
     }));
 
   }
@@ -82,37 +78,19 @@ export default class Root extends Component {
         
   }
 
-  componentWillMount() {
-    // this.setState({
-    //   messages: [
-    //     {
-    //       _id: 1,
-    //       // text: 'Hello developer',
-    //       createdAt: new Date(),
-    //       user: {
-    //         _id: ID_FOR_MINE,
-    //         name: userName,
-    //         avatar: 'https://facebook.github.io/react/img/logo_og.png',
-    //       },
-    //       image: require('./img/1.png')
-    //     },
-    //   ],
-    // });
-  }
-
   onSend(messages = []) {
       let message = messages[0]
 
       this.setState((previousState) => ({
-      messages: GiftedChat.append(this.state.messages, messages)
+      messages: GiftedChatAdvanced.append(this.state.messages, messages)
     }));
       this.chat.send(message.text)
   }
-  
+
   render() {
     return (
       <View style={{ flex: 1, paddingTop: STATUS_BAR_HEIGHT }}>
-        <GiftedChat
+        <GiftedChatAdvanced
         ref='giftedChat'
         style={{ flex: 1 }}
         messages={this.state.messages}
