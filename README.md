@@ -1,7 +1,7 @@
 ## Description
 
 Here's an example of using React Native to talk to a Phoenix server with WebSockets.  
-![screen capture](https://raw.githubusercontent.com/natsuki-yamanaka/phoenix-react-native-mashup2017/images/screenshot1.png "sample")
+<img src="https://raw.githubusercontent.com/natsuki-yamanaka/phoenix-react-native-mashup2017/images/screenshot1.png" width="320">
   
 upgrade version for  
   
