@@ -46,6 +46,13 @@ export default (user, onChat) => {
       .receive('timeout', () => console.log('slow much?'))
   }
 
+  const sendImage = (message, imageId) => {
+    chan.push('new:msg', {body: message, user, image: imageId}, TIMEOUT)
+      .receive('ok', (msg) => console.log('sent'))
+      .receive('error', (reasons) => console.log('flop', reasons))
+      .receive('timeout', () => console.log('slow much?'))
+  }
+
   // reveal a couple ways to drive this bus
-  return { close, send }
+  return { close, send, sendImage}
 }

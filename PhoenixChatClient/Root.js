@@ -5,6 +5,10 @@ import {
   Text,
   View,
   Dimensions,
+  Button,
+  Image,
+  TouchableHighlight,
+  ListView,
   Platform
 } from 'react-native';
 import GiftedChatAdvanced from './GiftedChatAdvanced'
@@ -27,10 +31,20 @@ export default class Root extends Component {
   constructor (props) {
     super(props)
     // bind our functions to the right scope
-    // this.handleSend = this.handleSend.bind(this)
     this.receiveChatMessage = this.receiveChatMessage.bind(this)
+    this.onSendStamp = this.onSendStamp.bind(this)
     // let's chat!
     this.chat = Chat(userName, this.receiveChatMessage)
+
+    const dataSource = new ListView.DataSource({
+      rowHasChanged: (r1, r2) => {
+        return r1.id !== r2.id;
+      }
+    });
+    const stampData = [{id:1, name:'biz1'}, {id:2, name:'biz2'}, {id:3, name:'biz3'}];
+    this.state = {
+      dataSource: dataSource.cloneWithRows(stampData)
+    };
   }
 
   // fires when we receive a message
@@ -38,7 +52,7 @@ export default class Root extends Component {
     if (this.isMe(message)) return // prevent echoing yourself (TODO: server could handle this i guess?)
 
     this.setState((previousState) => ({
-      messages: GiftedChatAdvanced.append(this.state.messages, [this.createMessage(message.body, message.user, message.image, 'https://facebook.github.io/react/img/logo_og.png')])
+      messages: GiftedChatAdvanced.append(this.state.messages, [createMessage(message.body, message.user, message.image ? this.getStampImageUri(message.image) : undefined, 'https://facebook.github.io/react/img/logo_og.png')])
     }));
 
   }
@@ -51,7 +65,85 @@ export default class Root extends Component {
       return false;
   }
 
-  createMessage(body, name, image, avatar) {
+  getStampImageUri(image){
+    switch(image){
+      case 1:
+      return require('./img/1.png');
+      case 2:
+      return require('./img/2.png');
+      case 3:
+      return require('./img/3.png');
+    }
+    return require('./img/1.png');
+  }
+
+  onSendStamp(stampId){
+    const stampMessage = createMessage('stamp', userName, this.getStampImageUri(stampId), 'https://facebook.github.io/react/img/logo_og.png');
+    this.setState((previousState) => ({
+      messages: GiftedChatAdvanced.append(this.state.messages, [stampMessage])
+    }));
+    this.chat.sendImage(stampMessage.text, stampId)
+  }
+
+  onSend(messages = []) {
+      let message = messages[0]
+      this.setState((previousState) => ({
+      messages: GiftedChatAdvanced.append(this.state.messages, messages)
+    }));
+      this.chat.send(message.text)
+  }
+
+  renderRow(data) {
+    return (
+      <TouchableHighlight onPress={ () => this.onSendStamp(data.id) }>
+          <Image
+            style={{width:100, height:100}}
+            source={require('./img/'+data.id+'.png')}
+          />
+        </TouchableHighlight>
+    )
+  }
+
+  render() {
+    return (
+      <View style={{ flex: 1, paddingTop: STATUS_BAR_HEIGHT }}>
+        <GiftedChatAdvanced
+        ref='giftedChat'
+        style={{ flex: 1 }}
+        messages={this.state.messages}
+        onSend={(messages) => this.onSend(messages)}
+        user={{
+          _id: 1,
+        }}
+      />
+
+      <View style={{ flexDirection: 'row' }}>
+      <TouchableHighlight onPress={ () => this.onSendStamp(1) }>
+          <Image
+            style={{width:100, height:100}}
+            source={require('./img/1.png')}
+          />
+        </TouchableHighlight>
+        <TouchableHighlight onPress={ () => this.onSendStamp(2) }>
+          <Image
+            style={{width:100, height:100}}
+            source={require('./img/2.png')}
+          />
+        </TouchableHighlight>
+        <TouchableHighlight onPress={ () => this.onSendStamp(3) }>
+          <Image
+            style={{width:100, height:100}}
+            source={require('./img/3.png')}
+          />
+        </TouchableHighlight>
+      </View>
+
+        </View>
+    )
+  }
+}
+
+function createMessage(body, name, image, avatar) {
     if(image){
         return {
           _id: uuid.v4(),
@@ -75,31 +167,4 @@ export default class Root extends Component {
           }
         };
     }
-        
-  }
-
-  onSend(messages = []) {
-      let message = messages[0]
-
-      this.setState((previousState) => ({
-      messages: GiftedChatAdvanced.append(this.state.messages, messages)
-    }));
-      this.chat.send(message.text)
-  }
-
-  render() {
-    return (
-      <View style={{ flex: 1, paddingTop: STATUS_BAR_HEIGHT }}>
-        <GiftedChatAdvanced
-        ref='giftedChat'
-        style={{ flex: 1 }}
-        messages={this.state.messages}
-        onSend={(messages) => this.onSend(messages)}
-        user={{
-          _id: 1,
-        }}
-      />
-        </View>
-    )
-  }
 }
